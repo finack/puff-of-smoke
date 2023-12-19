@@ -1,5 +1,5 @@
 @app
-grunge-stack-template
+wiring-hello-worl-ecf7
 
 @aws
 runtime nodejs18.x
