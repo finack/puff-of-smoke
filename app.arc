@@ -30,3 +30,15 @@ password
 note
   pk *String  # userId
   sk **String # noteId
+
+device
+  pk *String  # userId
+  sk **String # deviceId
+
+connector
+  pk *String  # userId
+  sk **String # connectorId
+
+wire
+  pk *String  # userId
+  sk **String # wireId
