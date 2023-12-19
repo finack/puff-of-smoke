@@ -1,12 +1,12 @@
 @app
-wiring-hello-worl-ecf7
+puff-of-smoke-9151
 
 @aws
 runtime nodejs18.x
 # concurrency 1
 # memory 1152
 # profile default
-# region us-west-1
+region us-west-1
 # timeout 30
 
 @http
@@ -17,6 +17,11 @@ runtime nodejs18.x
 @plugins
 plugin-remix
   src plugin-remix.js
+architect/plugin-budget-watch
+
+@budget
+limit "$10"
+email "peter@finack.com"
 
 @static
 
@@ -36,9 +41,5 @@ device
   sk **String # deviceId
 
 connector
-  pk *String  # userId
+  pk *String  # deviceId 
   sk **String # connectorId
-
-wire
-  pk *String  # userId
-  sk **String # wireId

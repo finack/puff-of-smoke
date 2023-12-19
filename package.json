@@ -24,6 +24,7 @@
   "dependencies": {
     "@architect/architect": "^10.14.2",
     "@architect/functions": "^7.0.0",
+    "@architect/plugin-budget-watch": "^0.0.4",
     "@paralleldrive/cuid2": "^2.2.2",
     "@remix-run/architect": "^2.4.0",
     "@remix-run/css-bundle": "^2.4.0",
