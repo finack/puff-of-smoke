@@ -11,23 +11,23 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   const formData = await request.formData();
   const title = formData.get("title");
-  const body = formData.get("body");
+  const description = formData.get("description");
 
   if (typeof title !== "string" || title.length === 0) {
     return json(
-      { errors: { body: null, title: "Title is required" } },
+      { errors: { description: null, title: "Title is required" } },
       { status: 400 },
     );
   }
 
-  if (typeof body !== "string" || body.length === 0) {
+  if (typeof description !== "string" || description.length === 0) {
     return json(
-      { errors: { body: "Body is required", title: null } },
+      { errors: { description: "description is required", title: null } },
       { status: 400 },
     );
   }
 
-  const device = await createDevice({ body, title, userId });
+  const device = await createDevice({ description, title, userId });
 
   return redirect(`/devices/${device.id}`);
 };
@@ -35,13 +35,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 export default function NewDevicePage() {
   const actionData = useActionData<typeof action>();
   const titleRef = useRef<HTMLInputElement>(null);
-  const bodyRef = useRef<HTMLTextAreaElement>(null);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (actionData?.errors?.title) {
       titleRef.current?.focus();
-    } else if (actionData?.errors?.body) {
-      bodyRef.current?.focus();
+    } else if (actionData?.errors?.description) {
+      descriptionRef.current?.focus();
     }
   }, [actionData]);
 
@@ -77,21 +77,21 @@ export default function NewDevicePage() {
 
       <div>
         <label className="flex w-full flex-col gap-1">
-          <span>Body: </span>
+          <span>Description: </span>
           <textarea
-            ref={bodyRef}
-            name="body"
+            ref={descriptionRef}
+            name="description"
             rows={8}
             className="w-full flex-1 rounded-md border-2 border-blue-500 px-3 py-2 text-lg leading-6"
-            aria-invalid={actionData?.errors?.body ? true : undefined}
+            aria-invalid={actionData?.errors?.description ? true : undefined}
             aria-errormessage={
-              actionData?.errors?.body ? "body-error" : undefined
+              actionData?.errors?.description ? "description-error" : undefined
             }
           />
         </label>
-        {actionData?.errors?.body ? (
-          <div className="pt-1 text-red-700" id="body-error">
-            {actionData.errors.body}
+        {actionData?.errors?.description ? (
+          <div className="pt-1 text-red-700" id="description-error">
+            {actionData.errors.description}
           </div>
         ) : null}
       </div>

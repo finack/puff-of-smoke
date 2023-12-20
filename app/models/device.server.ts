@@ -7,7 +7,7 @@ export interface Device {
   id: ReturnType<typeof createId>;
   userId: User["id"];
   title: string;
-  body: string;
+  description: string;
 }
 
 interface DeviceItem {
@@ -31,7 +31,7 @@ export async function getDevice({
         userId: result.pk,
         id: result.sk,
         title: result.title,
-        body: result.body,
+        description: result.description,
       };
     }
     return null;
@@ -55,23 +55,23 @@ export async function getDevice({
   }
   
   export async function createDevice({
-    body,
+    description,
     title,
     userId,
-  }: Pick<Device, "body" | "title" | "userId">): Promise<Device> {
+  }: Pick<Device, "description" | "title" | "userId">): Promise<Device> {
     const db = await arc.tables();
   
     const result = await db.device.put({
       pk: userId,
       sk: idToSk(createId()),
       title: title,
-      body: body,
+      description: description,
     });
     return {
       id: skToId(result.sk),
       userId: result.pk,
       title: result.title,
-      body: result.body,
+      description: result.description,
     };
   }
   

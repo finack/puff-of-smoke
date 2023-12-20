@@ -37,7 +37,7 @@ export default function DeviceDetailsPage() {
   return (
     <div>
       <h3 className="text-2xl font-bold">{data.device.title}</h3>
-      <p className="py-6">{data.device.body}</p>
+      <p className="py-6">{data.device.description}</p>
       <hr className="my-4" />
       <Form method="post">
         <button
