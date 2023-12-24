@@ -16,6 +16,7 @@ model User {
 
   password Password?
   notes    Note[]
+  devices  Device[]
 }
 
 model Password {
@@ -35,4 +36,63 @@ model Note {
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String
+}
+
+model Device {
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String
+
+  connector Connector[]
+}
+
+model Connector {
+  id   String @id @default(cuid())
+  name String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  device   Device? @relation(fields: [deviceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  deviceId String?
+  pins     Pin[]
+}
+
+model Pin {
+  id    String  @id @default(cuid())
+  name  String
+  label String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  connector   Connector? @relation(fields: [connectorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  connectorId String?
+
+  wires WireConnection[]
+}
+
+model Wire {
+  id    String  @id @default(cuid())
+  label String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  pins WireConnection[]
+}
+
+model WireConnection {
+  pinId  String
+  wireId String
+  pin    Pin    @relation(fields: [pinId], references: [id])
+  wire   Wire   @relation(fields: [wireId], references: [id])
+
+  @@id([pinId, wireId])
 }
