@@ -1,21 +1,47 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "type": "chrome",
-            "request": "launch",
-            "name": "Launch Chrome against localhost",
-            "url": "http://localhost:3000",
-            "webRoot": "${workspaceFolder}",
-            "preLaunchTask": "npm: dev",
-            "sourceMaps": true,
-            "outFiles": [
-                "${workspaceFolder}/build/**/*.js",
-                "!**/node_modules/**"
-            ]
-        }
-    ]
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "command": "npm run dev:remix",
+      "name": "Remix: Dev",
+      "request": "launch",
+      "type": "node-terminal",
+      "cwd": "${workspaceFolder}",
+      "serverReadyAction": {
+        "pattern": "app ready:",
+        "uriFormat": "http://localhost:3000",
+        "action": "debugWithChrome"
+      }
+    },
+    // {
+    //     "name": "Remix: Attach",
+    //     "processId": "${command:PickProcess}",
+    //     "request": "attach",
+    //     "skipFiles": [
+    //         "<node_internals>/**"
+    //     ],
+    //     "type": "node",
+    // },
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "Remix: Chrome",
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}",
+      "sourceMaps": true,
+      "outFiles": ["${workspaceFolder}/build/**/*.js", "!**/node_modules/**"]
+    }
+  ]
+  // "compounds": [
+  //     {
+  //         "name": "Remix: Dev & Chrome",
+  //         "configurations": [
+  //             "Remix: Dev",
+  //             "Remix: Chrome"
+  //         ]
+  //     }
+  // ]
 }

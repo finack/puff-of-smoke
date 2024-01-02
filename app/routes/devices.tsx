@@ -1,6 +1,6 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData, Link, Form, NavLink, Outlet } from "@remix-run/react";
 import { json } from "@remix-run/node";
+import { useLoaderData, Link, Form, NavLink, Outlet } from "@remix-run/react";
 
 import { getDeviceListItems } from "~/models/device.server";
 import { requireUserId } from "~/session.server";
@@ -13,7 +13,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export default function DevicesPage() {
-  const data = useLoaderData<typeof loader>()
+  const data = useLoaderData<typeof loader>();
   const user = useUser();
 
   return (

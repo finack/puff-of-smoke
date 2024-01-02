@@ -1,25 +1,25 @@
 import { useForm } from "@conform-to/react";
 import { parse } from "@conform-to/zod";
+import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
-import { json, redirect } from "@remix-run/node";
-import type { ActionFunctionArgs } from "@remix-run/node";
 import { z } from "zod";
 
 import { createDevice } from "~/models/device.server";
 import { requireUserId } from "~/session.server";
 
 const schema = z.object({
-  name: z
-    .string({ required_error: "Name is required" }),
+  name: z.string({ required_error: "Name is required" }),
   description: z
-    .string().optional().transform((val) => val ?? null)
+    .string()
+    .optional()
+    .transform((val) => val ?? null),
 });
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const submission = parse(formData, { schema });
 
-  if (!submission.value || submission.intent !== 'submit') {
+  if (!submission.value || submission.intent !== "submit") {
     return json(submission, { status: 400 });
   }
 
@@ -33,7 +33,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function NewDevicePage() {
   const lastSubmission = useActionData<typeof action>();
-  const [form, { name, description}] = useForm({
+  const [form, { name, description }] = useForm({
     lastSubmission,
     onValidate({ formData }) {
       return parse(formData, { schema });
@@ -58,7 +58,9 @@ export default function NewDevicePage() {
             name={name.name}
             className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
           />
-          <div className="pt-1 text-red-700" id="name-error">{name.error}</div>
+          <div className="pt-1 text-red-700" id="name-error">
+            {name.error}
+          </div>
         </label>
       </div>
 
@@ -70,7 +72,9 @@ export default function NewDevicePage() {
             rows={8}
             className="w-full flex-1 rounded-md border-2 border-blue-500 px-3 py-2 text-lg leading-6"
           />
-          <div className="pt-1 text-red-700" id="description-error">{description.error}</div>
+          <div className="pt-1 text-red-700" id="description-error">
+            {description.error}
+          </div>
         </label>
       </div>
 

@@ -49,7 +49,7 @@ model Device {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String
 
-  connector Connector[]
+  connectors Connector[]
 }
 
 model Connector {
