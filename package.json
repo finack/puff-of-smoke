@@ -35,6 +35,7 @@
     "@conform-to/zod": "^0.9.1",
     "@isaacs/express-prometheus-middleware": "^1.2.1",
     "@prisma/client": "^4.16.2",
+    "@projectstorm/react-diagrams": "^7.0.3",
     "@remix-run/css-bundle": "2.4.1",
     "@remix-run/express": "2.4.1",
     "@remix-run/node": "2.4.1",

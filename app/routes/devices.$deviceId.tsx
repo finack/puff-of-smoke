@@ -7,9 +7,14 @@ import {
   useRouteError,
 } from "@remix-run/react";
 import invariant from "tiny-invariant";
+import { DefaultNodeModel, DefaultPortModel, PortModelAlignment } from "@projectstorm/react-diagrams";
+
+import createDiagram from "~/components/diagram";
+import type { DiagramData } from "~/components/diagram";
 
 import { deleteDevice, getDeviceData } from "~/models/device.server";
 import { requireUserId } from "~/session.server";
+
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request);
   invariant(params.deviceId, "deviceId not found");
@@ -31,47 +36,33 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
   return redirect("/devices");
 };
 
-// Device Component
-const Device = ({ name, connectors }) => (
-  <div className="device">
-    {connectors.map((connector, index) => (
-      <Connector key={index} {...connector} />
-    ))}
-  </div>
-);
+function x(diagramData: DiagramData, device: any, connector: any, pin: any, wire: any) {
+  let nodeId = `${device.id}-${connector.id}`;
+  var node = diagramData["nodes"][nodeId];
 
-// Connector Component
-const Connector = ({ name, pins }) => (
-  <div className="connector">
-    <h3>{name}</h3>
-    {pins.map((pin, index) => (
-      <Pin key={index} {...pin} />
-    ))}
-  </div>
-);
+  if (!node) {
+    node = new DefaultNodeModel({
+      name: connector.name,
+    });
+    diagramData.nodes[nodeId] = node;
+  }
 
-// Pin Component
-const Pin = ({ name, label, wires, id }) => (
-  <div className="pin" id={`pin-${id}`}>
-    {label} {name}
-    {wires.map((wire, index) => (
-      <Wire key={index} {...wire} />
-    ))}
-  </div>
-);
+  let portId = `${nodeId}-${pin.id}`;
+  var port = diagramData["ports"][portId];
 
-// Wire Component
-const Wire = ({ fromPin, toPin }) => (
-  <div className="wire" style={calculateWirePosition(fromPin, toPin)}></div>
-);
+  if (!port) {
+    port = new DefaultPortModel({
+      name: pin.name,
+      alignment: PortModelAlignment.RIGHT,
+    });
+    diagramData.ports[portId] = port;
+  }
+  node.addPort(port);
 
-// Function to calculate wire position (simplified)
-const calculateWirePosition = (fromPin, toPin) => {
-  const fromElement = document.getElementById(`pin-${fromPin}`);
-  const toElement = document.getElementById(`pin-${toPin}`);
-  // Calculate the position and return the style object
-  // ...
-};
+  let wireId = `${portId}-${wire.id
+
+
+}
 
 export default function DeviceDetailsPage() {
   const data = useLoaderData<typeof loader>();
@@ -84,6 +75,38 @@ export default function DeviceDetailsPage() {
       e.preventDefault(); // Prevents the form from submitting if the user cancels
     }
   };
+
+  const diagramData: DiagramData = { nodes: {}, ports: {} };
+
+  data.device.connectors.forEach((connector) => {
+    // Create the ports
+    connector.pins.forEach((pin) => {
+      const port = new DefaultPortModel({
+        name: pin.name,
+        alignment: PortModelAlignment.RIGHT,
+      });
+      node.addPort(port);
+      diagramData.ports[`${nodeId}-${pin.name}`] = port;
+
+      pin.wires.forEach((wire) => {
+        const rightPin = wire.pin
+        const rightConnector = rightPin.connector
+        const rightDevice = rightConnector.device
+
+    });
+
+    // Create the links
+    connector.pins.forEach((pin) => {
+      pin.connector.forEach((connection: { connectorId: string | number; pinName: any; }) => {
+        const sourcePort = diagramData.ports[`${nodeId}-${pin.name}`];
+        const targetPort = diagramData.ports[`${connection.connectorId}-${connection.pinName}`];
+        const link = sourcePort.link<DefaultLinkModel>(targetPort);
+        diagramData.nodes[connection.connectorId].addLink(link);
+      });
+    });
+
+
+  })
 
   return (
     <div>
