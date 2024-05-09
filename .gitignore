@@ -2,4 +2,10 @@ node_modules
 
 /.cache
 /build
+/public/build
+
+.DS_Store
+
 .env
+.tags
+/*.csv
