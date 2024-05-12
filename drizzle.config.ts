@@ -4,9 +4,9 @@ import config from "~/config";
 export default {
   out: './migrations',
   schema: './app/db/schema.ts',
-  driver: "pg",
+  dialect: "postgresql",
   dbCredentials: {
-    connectionString: config.DATABASE_URL
+    url: config.DATABASE_URL
   },
   breakpoints: true,
   verbose: true,

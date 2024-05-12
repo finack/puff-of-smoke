@@ -32,6 +32,7 @@ export type NewDevice = typeof devices.$inferInsert;
 export const projects = pgTable("projects", {
   id: uuid("uuid").primaryKey().defaultRandom(),
   name: varchar("name", { length: 255 }),
+  isDefault: boolean("is_default").default(false),
   ownerId: uuid("owner_uuid").references(() => users.id, { onDelete: 'cascade' }).notNull(),
   createdAt: timestamp("created_at").default(sql`now()`),
   updatedAt: timestamp("updated_at").default(sql`now()`),
