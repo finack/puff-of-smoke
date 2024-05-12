@@ -23,10 +23,8 @@ export default function Devices() {
       <header className="flex items-center justify-between border-b border-white/5 px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
         <h1 className="text-base font-semibold leading-7 text-white">Devices</h1>
         <Text>Add Device</Text>
-
       </header>
 
-      {/* Deployment list */}
       <ul className="divide-y divide-white/5">
         {data.devices.map((device) => (
           <li key={device.id} className="relative flex items-center space-x-4 px-4 py-4 sm:px-6 lg:px-8">

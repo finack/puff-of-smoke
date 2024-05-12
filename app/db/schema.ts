@@ -1,7 +1,17 @@
 import { relations, sql } from "drizzle-orm";
-import { pgEnum, uuid, text, timestamp, varchar, jsonb, pgTable, uniqueIndex } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  jsonb,
+  pgEnum,
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+  uuid,
+  varchar
+} from "drizzle-orm/pg-core";
 
-// Inspiration for autoupdating updatedAt
+// Inspiration for autoupdating updatedAt at a later time
 // updateCounter: integer('update_counter').default(sql`1`).$onUpdateFn((): SQL => sql`${table.update_counter} + 1`),
 // updatedAt: timestamp('updated_at', { mode: 'date', precision: 3 }).$onUpdate(() => new Date()),
 
@@ -36,6 +46,10 @@ export const projects = pgTable("projects", {
   ownerId: uuid("owner_uuid").references(() => users.id, { onDelete: 'cascade' }).notNull(),
   createdAt: timestamp("created_at").default(sql`now()`),
   updatedAt: timestamp("updated_at").default(sql`now()`),
+}, (table) => {
+  return {
+    isDefaultUniqueIdx: uniqueIndex("is_default_unique_index").on(table.isDefault).where(sql`is_default = true`)
+  }
 });
 
 export type Project = typeof projects.$inferSelect;
@@ -81,3 +95,15 @@ export const wires = pgTable("wires", {
 
 export type Wire = typeof wires.$inferSelect;
 export type NewWire = typeof wires.$inferInsert;
+
+// biome-ignore lint/suspicious/noExplicitAny:
+export function fromJson(jsonObj: any): any {
+  for (const key in jsonObj) {
+    if (typeof jsonObj[key] === 'object' && jsonObj[key] !== null) {
+      fromJson(jsonObj[key]);
+    } else if (key === 'createdAt' || key === 'updatedAt') {
+      jsonObj[key] = jsonObj[key] ? new Date(jsonObj[key]) : null;
+    }
+  }
+  return jsonObj;
+}

@@ -2,8 +2,7 @@ import fs from "node:fs";
 import { parse } from "csv-parse";
 
 import db, { client } from "~/db/db.server"
-import { projects, devices, wires, users } from "~/db/schema"
-import type { NewProject, NewDevice, NewWire, NewUser, Project } from "~/db/schema"
+import { devices, projects, users } from "~/db/schema"
 
 async function devicesFromCsv(projectId: string) {
 
@@ -50,7 +49,7 @@ async function seeds() {
 
   await db
     .insert(projects)
-    .values({ id: projectId, name: "Project 1", ownerId: userId })
+    .values({ id: projectId, name: "Project 1", ownerId: userId, isDefault: true })
 
   await devicesFromCsv(projectId)
 }
