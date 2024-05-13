@@ -10,6 +10,7 @@ import {
   uuid,
   varchar
 } from "drizzle-orm/pg-core";
+import { createInsertSchema } from "drizzle-zod";
 
 // Inspiration for autoupdating updatedAt at a later time
 // updateCounter: integer('update_counter').default(sql`1`).$onUpdateFn((): SQL => sql`${table.update_counter} + 1`),
@@ -51,6 +52,8 @@ export const projects = pgTable("projects", {
     isDefaultUniqueIdx: uniqueIndex("is_default_unique_index").on(table.isDefault).where(sql`is_default = true`)
   }
 });
+
+export const insertProjectSchema = createInsertSchema(projects);
 
 export type Project = typeof projects.$inferSelect;
 export type NewProject = typeof projects.$inferInsert;
