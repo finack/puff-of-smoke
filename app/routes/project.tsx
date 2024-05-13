@@ -33,7 +33,7 @@ export const loader = async () => {
   return json({ projects: projects })
 };
 
-export default function Example() {
+export default function ProjectIndex() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const data = useLoaderData<typeof loader>()
