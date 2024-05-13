@@ -1,24 +1,14 @@
 import type { MetaFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { Outlet, useLoaderData } from "@remix-run/react";
 import { useState } from 'react'
-import { json } from "@remix-run/node";
 
-import {
-  Bars3Icon,
-  ChevronRightIcon,
-  ChevronUpDownIcon,
-  MagnifyingGlassIcon
-} from '@heroicons/react/20/solid'
-
-import { clsx } from 'clsx'
-
-import { getProjects, type Project } from "~/models/project.server"
+import { type Project, getProjects } from "~/models/project.server"
 
 import { fromJson } from "~/db/schema"
 
-import { Text } from "~/components/catalyst/text"
-import Navbar from "~/components/navbar"
-import SearchBar from "~/components/search"
+import Navbar from "~/routes/project/navbar"
+import SearchBar from "~/routes/project/search"
 
 export const meta: MetaFunction = () => {
   return [

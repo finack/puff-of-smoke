@@ -6,6 +6,7 @@ import { clsx } from 'clsx'
 import { getDevices } from "~/models/device.server"
 
 import { Text } from "~/components/catalyst/text"
+import { Link } from "~/components/catalyst/link"
 
 export const loader = async () => {
   // const userId = "2258aded-43b7-474c-b1a4-93ca9a478bee"
@@ -34,17 +35,18 @@ export default function Devices() {
                   <div className="h-2 w-2 rounded-full bg-current" />
                 </div>
                 <h2 className="min-w-0 text-sm font-semibold leading-6 text-white">
-                  <a href="#" className="flex gap-x-2">
+                  <Link href="#" className="flex gap-x-2">
                     <span className="truncate">{device.shortCode}</span>
                     <span className="text-gray-400">/</span>
                     <span className="whitespace-nowrap">{device.description}</span>
                     <span className="absolute inset-0" />
-                  </a>
+                  </Link>
                 </h2>
               </div>
               <div className="mt-3 flex items-center gap-x-2.5 text-xs leading-5 text-gray-400">
                 <p className="truncate">{device.vendor}</p>
                 <svg viewBox="0 0 2 2" className="h-0.5 w-0.5 flex-none fill-gray-300">
+                  <title>close</title>
                   <circle cx={1} cy={1} r={1} />
                 </svg>
                 <p className="whitespace-nowrap">{device.model}</p>

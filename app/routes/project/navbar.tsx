@@ -1,14 +1,14 @@
-import { Dialog, Menu, Transition } from '@headlessui/react'
+import { Dialog, Transition } from '@headlessui/react'
 import { Fragment, useState } from 'react'
-import { FolderIcon, ServerIcon, SignalIcon, GlobeAltIcon, XMarkIcon, ChartBarSquareIcon, Cog6ToothIcon } from '@heroicons/react/24/outline'
-import { Button } from "~/components/catalyst/button"
-import { ProjectEditor } from "~/components/newProject"
-
 import clsx from 'clsx'
+import { FolderIcon, ServerIcon, SignalIcon, GlobeAltIcon, XMarkIcon, ChartBarSquareIcon, Cog6ToothIcon } from '@heroicons/react/24/outline'
 
 import type { Project } from "~/db/schema"
 
+import { Button } from "~/components/catalyst/button"
 import { Link } from "~/components/catalyst/link"
+
+import { ProjectEditor } from "~/routes/project/editor"
 
 const navigation = [
   { name: 'Devices', href: '#', icon: FolderIcon, current: false },
@@ -128,7 +128,7 @@ const Navbar: React.FC<NavbarProps> = ({ sidebarOpen, setSidebarOpen, projects }
                         </Button>
                       </li>
                       <li className="-mx-6 mt-auto">
-                        <a
+                        <Link
                           href="#"
                           className="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-white hover:bg-gray-800"
                         >
@@ -139,7 +139,7 @@ const Navbar: React.FC<NavbarProps> = ({ sidebarOpen, setSidebarOpen, projects }
                           />
                           <span className="sr-only">Your profile</span>
                           <span aria-hidden="true">Tom Cook</span>
-                        </a>
+                        </Link>
                       </li>
                     </ul>
                   </nav>
