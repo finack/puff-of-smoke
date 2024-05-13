@@ -8,8 +8,6 @@ import type { Project } from "~/db/schema"
 import { Button } from "~/components/catalyst/button"
 import { Link } from "~/components/catalyst/link"
 
-import { ProjectEditor } from "~/routes/project/editor"
-
 const navigation = [
   { name: 'Devices', href: '#', icon: FolderIcon, current: false },
   { name: 'Deployments', href: '#', icon: ServerIcon, current: true },
@@ -26,7 +24,6 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ sidebarOpen, setSidebarOpen, projects }) => {
-  const [projectEditorOpen, setProjectEditorOpen] = useState(false);
 
   return (
     <>
@@ -123,9 +120,9 @@ const Navbar: React.FC<NavbarProps> = ({ sidebarOpen, setSidebarOpen, projects }
                             </li>
                           ))}
                         </ul>
-                        <Button type="button" onClick={() => setProjectEditorOpen(true)}>
-                          Edit Project
-                        </Button>
+                        <Link href="/project/editor/new">
+                          New project
+                        </Link>
                       </li>
                       <li className="-mx-6 mt-auto">
                         <Link
@@ -149,13 +146,6 @@ const Navbar: React.FC<NavbarProps> = ({ sidebarOpen, setSidebarOpen, projects }
           </div>
         </Dialog>
       </Transition.Root >
-
-      <ProjectEditor
-        project={null}
-        projectEditorOpen={projectEditorOpen}
-        setProjectEditorOpen={setProjectEditorOpen}
-        setSidebarOpen={setSidebarOpen}
-      />
     </>
   )
 };
