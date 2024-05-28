@@ -5,7 +5,7 @@ import { cleanEnv, str } from "envalid";
 dotenv.config();
 
 const config = cleanEnv(process.env, {
-  DATABASE_URL: str(),
+	DATABASE_URL: str(),
 });
 
 export default config;

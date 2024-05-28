@@ -1,34 +1,29 @@
-import { asc, desc, eq } from 'drizzle-orm'
+import { asc, desc, eq } from "drizzle-orm";
 
-import db from '~/db/db.server'
+import db from "~/db/db.server";
 
-import { type Project, projects } from '~/db/schema'
+import { type Project, projects } from "~/db/schema";
 
-export type { Project }
+export type { Project };
 
 export function getProjects({
-  ownerId
+	ownerId,
 }: {
-  ownerId: Project['ownerId']
-}):
-  Promise<Project[]> {
-  return db.query.projects.findMany({
-    where: eq(projects.ownerId, ownerId),
-    orderBy: [asc(projects.isDefault), asc(projects.name)],
-  })
+	ownerId: Project["ownerId"];
+}): Promise<Project[]> {
+	return db.query.projects.findMany({
+		where: eq(projects.ownerId, ownerId),
+		orderBy: [asc(projects.isDefault), asc(projects.name)],
+	});
 }
 
 export function getDefaultOrLatestProject({
-  ownerId
+	ownerId,
 }: {
-  ownerId: Project['ownerId']
-}):
-  Promise<Project | null> {
-  return db.query.projects.findFirst({
-    where: eq(projects.ownerId, ownerId),
-    orderBy: [
-      desc(projects.isDefault),
-      desc(projects.createdAt)
-    ],
-  })
+	ownerId: Project["ownerId"];
+}): Promise<Project | null> {
+	return db.query.projects.findFirst({
+		where: eq(projects.ownerId, ownerId),
+		orderBy: [desc(projects.isDefault), desc(projects.createdAt)],
+	});
 }

@@ -1,19 +1,18 @@
-import { and, asc, eq } from 'drizzle-orm'
+import { and, asc, eq } from "drizzle-orm";
 
-import db from '~/db/db.server'
+import db from "~/db/db.server";
 
-import { devices, type Device } from '~/db/schema'
+import { type Device, devices } from "~/db/schema";
 
-export type { Device }
+export type { Device };
 
 export function getDevices({
-  projectId
+	projectId,
 }: {
-  projectId: Device['projectId']
-}):
-  Promise<Device[]> {
-  return db.query.devices.findMany({
-    where: eq(devices.projectId, projectId),
-    orderBy: [asc(devices.shortCode)],
-  })
+	projectId: Device["projectId"];
+}): Promise<Device[]> {
+	return db.query.devices.findMany({
+		where: eq(devices.projectId, projectId),
+		orderBy: [asc(devices.shortCode)],
+	});
 }

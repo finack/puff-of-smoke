@@ -73,7 +73,7 @@ function handleBotRequest(
 					reject(error);
 				},
 				onError(error: unknown) {
-          // biome-ignore lint/style/noParameterAssign:
+					// biome-ignore lint/style/noParameterAssign:
 					responseStatusCode = 500;
 					// Log streaming rendering errors from inside the shell.  Don't log
 					// errors encountered during initial shell rendering since they'll
@@ -124,7 +124,7 @@ function handleBrowserRequest(
 					reject(error);
 				},
 				onError(error: unknown) {
-          // biome-ignore lint/style/noParameterAssign:
+					// biome-ignore lint/style/noParameterAssign:
 					responseStatusCode = 500;
 					// Log streaming rendering errors from inside the shell.  Don't log
 					// errors encountered during initial shell rendering since they'll
