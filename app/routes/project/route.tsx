@@ -8,6 +8,7 @@ import { type Project, getProjects } from "~/models/project.server";
 import { fromJson } from "~/db/schema";
 
 import { SideBar, SideBarButton } from "~/routes/project/sidebar";
+import { SearchBar } from "~/routes/project/search";
 
 export const meta: MetaFunction = () => {
 	return [
@@ -29,18 +30,15 @@ export default function ProjectIndex() {
 	const projects: Project[] = fromJson(data.projects);
 
 	return (
-		<div>
+		<div className="w-screen">
 			<SideBar
 				setSidebarOpen={setSidebarOpen}
 				sidebarOpen={sidebarOpen}
 				projects={projects}
 			/>
-			{/* <SearchBar setSidebarOpen={setSidebarOpen} /> */}
+			<SearchBar setSidebarOpen={setSidebarOpen} />
 
-			<div>
-				<SideBarButton setSidebarOpen={setSidebarOpen} />
-				<Outlet />
-			</div>
+			<Outlet />
 		</div>
 	);
 }
