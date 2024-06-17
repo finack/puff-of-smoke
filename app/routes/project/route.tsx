@@ -7,8 +7,8 @@ import { type Project, getProjects } from "~/models/project.server";
 
 import { fromJson } from "~/db/schema";
 
-import { SideBar, SideBarButton } from "~/routes/project/sidebar";
 import { SearchBar } from "~/routes/project/search";
+import { SideBar, SideBarButton } from "~/routes/project/sidebar";
 
 export const meta: MetaFunction = () => {
 	return [
