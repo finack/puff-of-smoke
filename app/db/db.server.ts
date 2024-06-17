@@ -5,7 +5,7 @@ const { Pool } = pkg;
 import config from "~/config";
 import * as schema from "~/db/schema";
 
-const pool = new Pool({
+export const pool = new Pool({
 	connectionString: config.DATABASE_URL,
 	max: 5,
 });
