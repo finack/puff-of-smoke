@@ -7,12 +7,12 @@ import { type Device, devices } from "~/db/schema";
 export type { Device };
 
 export function getDevices({
-	projectId,
+  projectId,
 }: {
-	projectId: Device["projectId"];
+  projectId: Device["projectId"];
 }): Promise<Device[]> {
-	return db.query.devices.findMany({
-		where: eq(devices.projectId, projectId),
-		orderBy: [asc(devices.shortCode)],
-	});
+  return db.query.devices.findMany({
+    where: eq(devices.projectId, projectId),
+    orderBy: [asc(devices.shortCode)],
+  });
 }

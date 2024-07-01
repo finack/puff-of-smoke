@@ -6,8 +6,8 @@ import config from "~/config";
 import * as schema from "~/db/schema";
 
 export const pool = new Pool({
-	connectionString: config.DATABASE_URL,
-	max: 5,
+  connectionString: config.DATABASE_URL,
+  max: 5,
 });
 
 const db = drizzle(pool, { schema });

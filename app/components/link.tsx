@@ -1,15 +1,15 @@
 import * as Headless from "@headlessui/react";
-import { Link as RemixLink, type LinkProps } from "@remix-run/react";
+import { type LinkProps, Link as RemixLink } from "@remix-run/react";
 import { forwardRef } from "react";
 import type React from "react";
 
 export const Link = forwardRef(function Link(
-	props: { href: string | LinkProps["to"] } & Omit<LinkProps, "to">,
-	ref: React.ForwardedRef<HTMLAnchorElement>,
+  props: { href: string | LinkProps["to"] } & Omit<LinkProps, "to">,
+  ref: React.ForwardedRef<HTMLAnchorElement>,
 ) {
-	return (
-		<Headless.DataInteractive>
-			<RemixLink {...props} to={props.href} ref={ref} />
-		</Headless.DataInteractive>
-	);
+  return (
+    <Headless.DataInteractive>
+      <RemixLink {...props} to={props.href} ref={ref} />
+    </Headless.DataInteractive>
+  );
 });
