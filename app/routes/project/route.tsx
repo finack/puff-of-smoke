@@ -4,11 +4,11 @@ import { Outlet, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 
 import { type Project, getProjects } from "~/models/project.server";
-
 import { fromJson } from "~/db/schema";
 
-import { SearchBar } from "~/routes/project/search";
-import { SideBar, SideBarButton } from "~/routes/project/sidebar";
+import { NavBar } from "./navbar";
+import { SideBar } from "./sidebar";
+import { StackedLayout } from "~/components/stacked-layout";
 
 export const meta: MetaFunction = () => {
 	return [
@@ -24,21 +24,14 @@ export const loader = async () => {
 };
 
 export default function ProjectIndex() {
-	const [sidebarOpen, setSidebarOpen] = useState(false);
-
 	const data = useLoaderData<typeof loader>();
 	const projects: Project[] = fromJson(data.projects);
 
 	return (
 		<div className="w-screen">
-			<SideBar
-				setSidebarOpen={setSidebarOpen}
-				sidebarOpen={sidebarOpen}
-				projects={projects}
-			/>
-			<SearchBar setSidebarOpen={setSidebarOpen} />
-
-			<Outlet />
+			<StackedLayout navbar={<NavBar />} sidebar={<SideBar />}>
+				<Outlet />
+			</StackedLayout>
 		</div>
 	);
 }

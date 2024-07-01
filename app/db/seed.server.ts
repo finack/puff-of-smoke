@@ -3,14 +3,7 @@ import { parse } from "csv-parse";
 import { eq } from "drizzle-orm";
 
 import db, { pool } from "~/db/db.server";
-import {
-	components,
-	devices,
-	points,
-	projects,
-	users,
-	wires,
-} from "~/db/schema";
+import { devices, points, projects, users, segments } from "~/db/schema";
 
 async function devicesFromCsv(projectId: string) {
 	const parser = fs
@@ -22,12 +15,31 @@ async function devicesFromCsv(projectId: string) {
 			continue;
 		}
 
-		const { id, shortCode, description, ...meta } = record;
+		const {
+			id,
+			shortCode,
+			description,
+			vendor,
+			model,
+			url,
+			partNumber,
+			cost,
+			...meta
+		} = record;
 
 		const updatedRecord = {
 			shortCode,
 			description,
-			meta,
+			data: {
+				vendor: {
+					name: vendor,
+					model,
+					url,
+					partNumber,
+					price: cost,
+				},
+				meta,
+			},
 		};
 
 		await db
@@ -74,59 +86,7 @@ async function seeds() {
 			where: eq(devices.shortCode, "GDU"),
 		}),
 	};
-
-	console.log("devs", devs);
-
-	const comp = {
-		ibbs: (
-			await db
-				.insert(components)
-				.values({ deviceId: devs.ibbs.id, lablel: "IBBS" })
-				.returning()
-		)[0],
-		gtn_comm: (
-			await db
-				.insert(components)
-				.values({ deviceId: devs.gtn.id, label: "P1003" })
-				.returning()
-		)[0],
-		fuse_1: (
-			await db
-				.insert(components)
-				.values({ deviceId: devs.fuse.id, label: "1" })
-				.returning()
-		)[0],
-	};
-
-	console.log("comp", comp);
-
-	const wire_1 = (
-		await db
-			.insert(wires)
-			.values({ projectId: projectId, type: "power" })
-			.returning()
-	)[0];
-	const wire_2 = (
-		await db.insert(wires).values({ projectId: projectId }).returning()
-	)[0];
-
-	await db.insert(points).values({
-		wireId: wire_1.id,
-		componentId: comp.ibbs.id,
-		identifier: "12",
-		label: "Passthru Power",
-		order: 1,
-	});
-
-	await db.insert(points).values({
-		wireId: wire_1.id,
-		componentId: comp.gtn_comm.id,
-		identifier: "30",
-		label: "Power 2",
-		order: 2,
-	});
 }
-
 async function runSeed() {
 	try {
 		await seeds();

@@ -5,16 +5,16 @@ import { useEffect, useState } from "react";
 import type { Project } from "~/db/schema";
 import { insertProjectSchema } from "~/db/schema";
 
-import { Button } from "~/components/catalyst/button";
+import { Button } from "~/components/button";
 import {
 	Dialog,
 	DialogActions,
 	DialogBody,
 	DialogDescription,
 	DialogTitle,
-} from "~/components/catalyst/dialog";
-import { Field, Label } from "~/components/catalyst/fieldset";
-import { Input } from "~/components/catalyst/input";
+} from "~/components/dialog";
+import { Field, Label } from "~/components/fieldset";
+import { Input } from "~/components/input";
 
 export async function action({ request }: ActionFunctionArgs) {
 	const formData = await request.formData();

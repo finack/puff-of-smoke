@@ -1,7 +1,6 @@
 import { relations, sql } from "drizzle-orm";
 import {
 	boolean,
-	integer,
 	jsonb,
 	pgEnum,
 	pgTable,
@@ -12,37 +11,26 @@ import {
 	varchar,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
+import { z } from "zod";
 
-export const components = pgTable("components", {
-	id: uuid("id").primaryKey().defaultRandom(),
-	deviceId: uuid("device_id")
-		.references(() => devices.id, { onDelete: "cascade" })
-		.notNull(),
-	label: text("label"),
-	meta: jsonb("meta"),
-	createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
-	updatedAt: timestamp("updated_at", { withTimezone: true })
-		.defaultNow()
-		.$onUpdate(() => sql`now()`),
+export const devicesDataSchema = z.object({
+	vendor: z
+		.object({
+			name: z.string().optional(),
+			model: z.string().optional(),
+			url: z.string().optional(),
+			partNumber: z.string().optional(),
+			price: z.number().optional(),
+		})
+		.optional(),
+	meta: z.any().optional(),
 });
-
-export const componentRelations = relations(components, ({ one, many }) => ({
-	device: one(devices, {
-		fields: [components.deviceId],
-		references: [devices.id],
-	}),
-	points: many(points),
-}));
-
-export const insertComponentSchema = createInsertSchema(components);
-export type Component = typeof components.$inferSelect;
-export type NewComponent = typeof components.$inferInsert;
 
 export const devices = pgTable("devices", {
 	id: uuid("id").primaryKey().defaultRandom(),
 	shortCode: varchar("short_code", { length: 10 }).unique(),
 	description: text("description"),
-	meta: jsonb("meta"),
+	data: jsonb("data").$type<z.infer<typeof devicesDataSchema>>(),
 	projectId: uuid("project_id")
 		.references(() => projects.id, { onDelete: "cascade" })
 		.notNull(),
@@ -52,46 +40,42 @@ export const devices = pgTable("devices", {
 		.$onUpdate(() => sql`now()`),
 });
 
-export const deviceRelations = relations(devices, ({ one, many }) => ({
+export const deviceRelations = relations(devices, ({ one }) => ({
 	project: one(projects, {
 		fields: [devices.projectId],
 		references: [projects.id],
 	}),
-	components: many(components),
 }));
 
 export const insertDeviceSchema = createInsertSchema(devices);
 export type Device = typeof devices.$inferSelect;
 export type NewDevice = typeof devices.$inferInsert;
 
+export const pointsDataSchema = z.object({
+	component: z
+		.object({
+			id: z.string().optional(), // Pin ID, eg "1"
+			label: z.string().optional(), //  "Power 2"
+			name: z.string().optional(), // Name of component P1004
+		})
+		.optional(),
+});
+
 export const points = pgTable("points", {
 	id: uuid("id").primaryKey().defaultRandom(),
-	wireId: uuid("wire_id")
-		.notNull()
-		.references(() => wires.id, { onDelete: "cascade" }),
-	componentId: uuid("component_id").references(() => components.id, {
+	deviceId: uuid("device_id").references(() => devices.id, {
 		onDelete: "set null",
 	}),
-	order: integer("order"),
-	identifier: text("identifier"),
-	label: text("label"),
-	group: text("group"),
-	meta: jsonb("meta"),
+	data: jsonb("data").$type<z.infer<typeof pointsDataSchema>>(),
+
 	createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 	updatedAt: timestamp("updated_at", { withTimezone: true })
 		.defaultNow()
 		.$onUpdate(() => sql`now()`),
 });
 
-export const pointRelations = relations(points, ({ one }) => ({
-	wire: one(wires, {
-		fields: [points.wireId],
-		references: [wires.id],
-	}),
-	component: one(components, {
-		fields: [points.componentId],
-		references: [components.id],
-	}),
+export const pointRelations = relations(points, ({ many }) => ({
+	segments: many(segments),
 }));
 
 export const insertPointSchema = createInsertSchema(points);
@@ -127,7 +111,6 @@ export const projectRelations = relations(projects, ({ one, many }) => ({
 		references: [users.id],
 	}),
 	devices: many(devices),
-	wires: many(wires),
 }));
 
 export const insertProjectSchema = createInsertSchema(projects);
@@ -168,30 +151,39 @@ export const insertUserSchema = createInsertSchema(users);
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 
-export const wires = pgTable("wires", {
+export const segments = pgTable("segments", {
 	id: uuid("id").primaryKey().defaultRandom(),
-	projectId: uuid("project_id").references(() => projects.id, {
-		onDelete: "cascade",
-	}),
-	meta: jsonb("meta"),
-	type: text("type"),
+	startPointId: uuid("start_point_id")
+		.references(() => points.id, {
+			onDelete: "cascade",
+		})
+		.notNull(),
+	endPointId: uuid("end_point_id")
+		.references(() => points.id, {
+			onDelete: "cascade",
+		})
+		.notNull(),
+	data: jsonb("data"),
 	createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 	updatedAt: timestamp("updated_at", { withTimezone: true })
 		.defaultNow()
 		.$onUpdate(() => sql`now()`),
 });
 
-export const wireRelations = relations(wires, ({ one, many }) => ({
-	project: one(projects, {
-		fields: [wires.projectId],
-		references: [projects.id],
+export const segmentRelations = relations(segments, ({ one }) => ({
+	startPoint: one(points, {
+		fields: [segments.startPointId],
+		references: [points.id],
 	}),
-	points: many(points),
+	EndPoint: one(points, {
+		fields: [segments.endPointId],
+		references: [points.id],
+	}),
 }));
 
-export const insertWireSchema = createInsertSchema(wires);
-export type Wire = typeof wires.$inferSelect;
-export type NewWire = typeof wires.$inferInsert;
+export const insertSegmentSchema = createInsertSchema(segments);
+export type Segment = typeof segments.$inferSelect;
+export type NewSegment = typeof segments.$inferInsert;
 
 // biome-ignore lint/suspicious/noExplicitAny:
 export function fromJson(jsonObj: any): any {
