@@ -1,11 +1,19 @@
-import { type LoaderFunction, json } from "@remix-run/node";
+import {
+  type LoaderFunction,
+  type LoaderFunctionArgs,
+  json,
+} from "@remix-run/node";
 import { useLoaderData, useNavigate } from "@remix-run/react";
 import React from "react";
 
 import { getDefaultOrLatestProject } from "~/models/project.server";
+import { requireUserId } from "~/session.server";
 
-export const loader: LoaderFunction = async () => {
-  const userId = "2258aded-43b7-474c-b1a4-93ca9a478bee";
+export const loader: LoaderFunction = async ({
+  request,
+}: LoaderFunctionArgs) => {
+  const userId = await requireUserId(request);
+  // const userId = "2258aded-43b7-474c-b1a4-93ca9a478bee";
   const defaultProject = await getDefaultOrLatestProject({ ownerId: userId });
   if (!defaultProject) {
     // TODO - Create a new project

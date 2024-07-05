@@ -5,6 +5,8 @@ import { eq } from "drizzle-orm";
 import db, { pool } from "~/db/db.server";
 import { devices, points, projects, segments, users } from "~/db/schema";
 
+import { createUser, deleteUserByEmail } from "~/models/user.server";
+
 async function devicesFromCsv(projectId: string) {
   const parser = fs
     .createReadStream("devices.csv")
@@ -50,18 +52,14 @@ async function devicesFromCsv(projectId: string) {
 }
 
 async function seeds() {
-  const userId = "2258aded-43b7-474c-b1a4-93ca9a478bee";
+  // const userId = "2258aded-43b7-474c-b1a4-93ca9a478bee";
   const projectId = "69b1f8a1-8e0b-4900-99f3-50ac4321032a";
 
-  await db.delete(users).where(eq(users.id, userId));
+  await deleteUserByEmail("user@example.com");
 
-  await db.insert(users).values({
-    id: userId,
-    firstName: "John",
-    lastName: "Doe",
-    email: "user@example.com",
-    status: "active",
-  });
+  const [user] = await createUser("user@example.com", "helloworld");
+
+  const userId = user.id;
 
   await db.insert(projects).values({
     id: projectId,

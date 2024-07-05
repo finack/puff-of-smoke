@@ -7,8 +7,12 @@ import tsconfigPaths from "vite-tsconfig-paths";
 installGlobals();
 
 export default defineConfig({
-	plugins: [remix(), tsconfigPaths()],
-	test: {
-		exclude: ["**/node_modules/**", "**/dist/**"],
-	},
+  plugins: [remix(), tsconfigPaths()],
+  test: {
+    globals: true,
+    environment: "happy-dom",
+    setupFiles: ["./test/setup-test-env.ts"],
+    include: ["./app/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
+    watchExclude: [".*\\/node_modules\\/.*", ".*\\/build\\/.*"],
+  },
 });
