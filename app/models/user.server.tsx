@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 
 import db from "~/db/db.server";
-import { users, type NewUser, type User } from "~/db/schema";
+import { type NewUser, type User, users } from "~/db/schema";
 export type { User, NewUser } from "~/db/schema";
 
 export async function getUserById(id: string) {

@@ -1,8 +1,8 @@
 import type { MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { Outlet, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
-import { LoaderFunctionArgs } from "@remix-run/node";
 
 import { fromJson } from "~/db/schema";
 import { type Project, getProjects } from "~/models/project.server";
