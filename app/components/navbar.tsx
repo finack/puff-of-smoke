@@ -1,235 +1,129 @@
-import { Dialog, Menu, Transition } from '@headlessui/react'
-import { Fragment } from 'react'
-import { FolderIcon, ServerIcon, SignalIcon, GlobeAltIcon, XMarkIcon, ChartBarSquareIcon, Cog6ToothIcon } from '@heroicons/react/24/outline'
+"use client";
 
-const navigation = [
-  { name: 'Devices', href: '#', icon: FolderIcon, current: false },
-  { name: 'Deployments', href: '#', icon: ServerIcon, current: true },
-  { name: 'Activity', href: '#', icon: SignalIcon, current: false },
-  { name: 'Domains', href: '#', icon: GlobeAltIcon, current: false },
-  { name: 'Usage', href: '#', icon: ChartBarSquareIcon, current: false },
-  { name: 'Settings', href: '#', icon: Cog6ToothIcon, current: false },
-]
-const teams = [
-  { id: 1, name: 'Planetaria', href: '#', initial: 'P', current: false },
-  { id: 2, name: 'Protocol', href: '#', initial: 'P', current: false },
-  { id: 3, name: 'Tailwind Labs', href: '#', initial: 'T', current: false },
-]
+import * as Headless from "@headlessui/react";
+import clsx from "clsx";
+import { LayoutGroup, motion } from "framer-motion";
+import { forwardRef, useId } from "react";
+import type React from "react";
+import { TouchTarget } from "./button";
+import { Link } from "./link";
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ')
-}
-
-interface NavbarProps {
-  sidebarOpen: boolean;
-  setSidebarOpen: (open: boolean) => void;
-}
-
-const Navbar: React.FC<NavbarProps> = ({ sidebarOpen, setSidebarOpen }) => {
+export function Navbar({
+  className,
+  ...props
+}: React.ComponentPropsWithoutRef<"nav">) {
   return (
-    <>
-      <Transition.Root show={sidebarOpen} as={Fragment}>
-        <Dialog className="relative z-50 xl:hidden" onClose={setSidebarOpen}>
-          <Transition.Child
-            as={Fragment}
-            enter="transition-opacity ease-linear duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="transition-opacity ease-linear duration-300"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="fixed inset-0 bg-gray-900/80" />
-          </Transition.Child>
-
-          <div className="fixed inset-0 flex">
-            <Transition.Child
-              as={Fragment}
-              enter="transition ease-in-out duration-300 transform"
-              enterFrom="-translate-x-full"
-              enterTo="translate-x-0"
-              leave="transition ease-in-out duration-300 transform"
-              leaveFrom="translate-x-0"
-              leaveTo="-translate-x-full"
-            >
-              <Dialog.Panel className="relative mr-16 flex w-full max-w-xs flex-1">
-                <Transition.Child
-                  as={Fragment}
-                  enter="ease-in-out duration-300"
-                  enterFrom="opacity-0"
-                  enterTo="opacity-100"
-                  leave="ease-in-out duration-300"
-                  leaveFrom="opacity-100"
-                  leaveTo="opacity-0"
-                >
-                  <div className="absolute left-full top-0 flex w-16 justify-center pt-5">
-                    <button type="button" className="-m-2.5 p-2.5" onClick={() => setSidebarOpen(false)}>
-                      <span className="sr-only">Close sidebar</span>
-                      <XMarkIcon className="h-6 w-6 text-white" aria-hidden="true" />
-                    </button>
-                  </div>
-                </Transition.Child>
-                {/* Sidebar component, swap this element with another sidebar if you like */}
-                <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6 ring-1 ring-white/10">
-                  <div className="flex h-16 shrink-0 items-center">
-                    <img
-                      className="h-8 w-auto"
-                      src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
-                      alt="Your Company"
-                    />
-                  </div>
-                  <nav className="flex flex-1 flex-col">
-                    <ul role="list" className="flex flex-1 flex-col gap-y-7">
-                      <li>
-                        <ul role="list" className="-mx-2 space-y-1">
-                          {navigation.map((item) => (
-                            <li key={item.name}>
-                              <a
-                                href={item.href}
-                                className={classNames(
-                                  item.current
-                                    ? 'bg-gray-800 text-white'
-                                    : 'text-gray-400 hover:text-white hover:bg-gray-800',
-                                  'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
-                                )}
-                              >
-                                <item.icon className="h-6 w-6 shrink-0" aria-hidden="true" />
-                                {item.name}
-                              </a>
-                            </li>
-                          ))}
-                        </ul>
-                      </li>
-                      <li>
-                        <div className="text-xs font-semibold leading-6 text-gray-400">Your teams</div>
-                        <ul role="list" className="-mx-2 mt-2 space-y-1">
-                          {teams.map((team) => (
-                            <li key={team.name}>
-                              <a
-                                href={team.href}
-                                className={classNames(
-                                  team.current
-                                    ? 'bg-gray-800 text-white'
-                                    : 'text-gray-400 hover:text-white hover:bg-gray-800',
-                                  'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
-                                )}
-                              >
-                                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-[0.625rem] font-medium text-gray-400 group-hover:text-white">
-                                  {team.initial}
-                                </span>
-                                <span className="truncate">{team.name}</span>
-                              </a>
-                            </li>
-                          ))}
-                        </ul>
-                      </li>
-                      <li className="-mx-6 mt-auto">
-                        <a
-                          href="#"
-                          className="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-white hover:bg-gray-800"
-                        >
-                          <img
-                            className="h-8 w-8 rounded-full bg-gray-800"
-                            src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                            alt=""
-                          />
-                          <span className="sr-only">Your profile</span>
-                          <span aria-hidden="true">Tom Cook</span>
-                        </a>
-                      </li>
-                    </ul>
-                  </nav>
-                </div>
-              </Dialog.Panel>
-            </Transition.Child>
-          </div>
-        </Dialog>
-      </Transition.Root>
-
-
-    </>
-  )
+    <nav
+      {...props}
+      className={clsx(className, "flex flex-1 items-center gap-4 py-2.5")}
+    />
+  );
 }
 
-export default Navbar;
-
-export function DesktopNavBar() {
+export function NavbarDivider({
+  className,
+  ...props
+}: React.ComponentPropsWithoutRef<"div">) {
   return (
-    <>
-      {/* Static sidebar for desktop */}
-      <div className="xl:fixed xl:inset-y-0 xl:z-50 xl:flex xl:w-72 xl:flex-col">
-        {/* Sidebar component, swap this element with another sidebar if you like */}
-        <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-black/10 px-6 ring-1 ring-white/5">
-          <div className="flex h-16 shrink-0 items-center">
-            <img
-              className="h-8 w-auto"
-              src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
-              alt="Your Company"
-            />
-          </div>
-          <nav className="flex flex-1 flex-col">
-            <ul role="list" className="flex flex-1 flex-col gap-y-7">
-              <li>
-                <ul role="list" className="-mx-2 space-y-1">
-                  {navigation.map((item) => (
-                    <li key={item.name}>
-                      <a
-                        href={item.href}
-                        className={classNames(
-                          item.current
-                            ? 'bg-gray-800 text-white'
-                            : 'text-gray-400 hover:text-white hover:bg-gray-800',
-                          'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
-                        )}
-                      >
-                        <item.icon className="h-6 w-6 shrink-0" aria-hidden="true" />
-                        {item.name}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </li>
-              <li>
-                <div className="text-xs font-semibold leading-6 text-gray-400">Your teams</div>
-                <ul role="list" className="-mx-2 mt-2 space-y-1">
-                  {teams.map((team) => (
-                    <li key={team.name}>
-                      <a
-                        href={team.href}
-                        className={classNames(
-                          team.current
-                            ? 'bg-gray-800 text-white'
-                            : 'text-gray-400 hover:text-white hover:bg-gray-800',
-                          'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
-                        )}
-                      >
-                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-[0.625rem] font-medium text-gray-400 group-hover:text-white">
-                          {team.initial}
-                        </span>
-                        <span className="truncate">{team.name}</span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </li>
-              <li className="-mx-6 mt-auto">
-                <a
-                  href="#"
-                  className="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-white hover:bg-gray-800"
-                >
-                  <img
-                    className="h-8 w-8 rounded-full bg-gray-800"
-                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                    alt=""
-                  />
-                  <span className="sr-only">Your profile</span>
-                  <span aria-hidden="true">Tom Cook</span>
-                </a>
-              </li>
-            </ul>
-          </nav>
-        </div>
-      </div>
-    </>
-  )
+    <div
+      aria-hidden="true"
+      {...props}
+      className={clsx(className, "h-6 w-px bg-zinc-950/10 dark:bg-white/10")}
+    />
+  );
+}
+
+export function NavbarSection({
+  className,
+  ...props
+}: React.ComponentPropsWithoutRef<"div">) {
+  const id = useId();
+
+  return (
+    <LayoutGroup id={id}>
+      <div {...props} className={clsx(className, "flex items-center gap-3")} />
+    </LayoutGroup>
+  );
+}
+
+export function NavbarSpacer({
+  className,
+  ...props
+}: React.ComponentPropsWithoutRef<"div">) {
+  return (
+    <div
+      aria-hidden="true"
+      {...props}
+      className={clsx(className, "-ml-4 flex-1")}
+    />
+  );
+}
+
+export const NavbarItem = forwardRef(function NavbarItem(
+  {
+    current,
+    className,
+    children,
+    ...props
+  }: { current?: boolean; className?: string; children: React.ReactNode } & (
+    | Omit<Headless.ButtonProps, "className">
+    | Omit<React.ComponentPropsWithoutRef<typeof Link>, "className">
+  ),
+  ref: React.ForwardedRef<HTMLAnchorElement | HTMLButtonElement>,
+) {
+  const classes = clsx(
+    // Base
+    "relative flex min-w-0 items-center gap-3 rounded-lg p-2 text-left text-base/6 font-medium text-zinc-950 sm:text-sm/5",
+    // Leading icon/icon-only
+    "data-[slot=icon]:*:size-6 data-[slot=icon]:*:shrink-0 data-[slot=icon]:*:fill-zinc-500 sm:data-[slot=icon]:*:size-5",
+    // Trailing icon (down chevron or similar)
+    "data-[slot=icon]:last:[&:not(:nth-child(2))]:*:ml-auto data-[slot=icon]:last:[&:not(:nth-child(2))]:*:size-5 sm:data-[slot=icon]:last:[&:not(:nth-child(2))]:*:size-4",
+    // Avatar
+    "data-[slot=avatar]:*:-m-0.5 data-[slot=avatar]:*:size-7 data-[slot=avatar]:*:[--avatar-radius:theme(borderRadius.DEFAULT)] data-[slot=avatar]:*:[--ring-opacity:10%] sm:data-[slot=avatar]:*:size-6",
+    // Hover
+    "data-[hover]:bg-zinc-950/5 data-[slot=icon]:*:data-[hover]:fill-zinc-950",
+    // Active
+    "data-[active]:bg-zinc-950/5 data-[slot=icon]:*:data-[active]:fill-zinc-950",
+    // Dark mode
+    "dark:text-white dark:data-[slot=icon]:*:fill-zinc-400",
+    "dark:data-[hover]:bg-white/5 dark:data-[slot=icon]:*:data-[hover]:fill-white",
+    "dark:data-[active]:bg-white/5 dark:data-[slot=icon]:*:data-[active]:fill-white",
+  );
+
+  return (
+    <span className={clsx(className, "relative")}>
+      {current && (
+        <motion.span
+          layoutId="current-indicator"
+          className="absolute inset-x-2 -bottom-2.5 h-0.5 rounded-full bg-zinc-950 dark:bg-white"
+        />
+      )}
+      {"href" in props ? (
+        <Link
+          {...props}
+          className={classes}
+          data-current={current ? "true" : undefined}
+          ref={ref as React.ForwardedRef<HTMLAnchorElement>}
+        >
+          <TouchTarget>{children}</TouchTarget>
+        </Link>
+      ) : (
+        <Headless.Button
+          {...props}
+          className={clsx("cursor-default", classes)}
+          data-current={current ? "true" : undefined}
+          ref={ref}
+        >
+          <TouchTarget>{children}</TouchTarget>
+        </Headless.Button>
+      )}
+    </span>
+  );
+});
+
+export function NavbarLabel({
+  className,
+  ...props
+}: React.ComponentPropsWithoutRef<"span">) {
+  return <span {...props} className={clsx(className, "truncate")} />;
 }

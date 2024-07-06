@@ -1,0 +1,25 @@
+skip_output:
+
+pre-commit:
+  parallel: true
+  commands:
+    biome:
+      glob: "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}"
+      run: npx @biomejs/biome check --write --no-errors-on-unmatched --files-ignore-unknown=true {staged_files} && git update-index --again
+    vitest:
+      glob: '*.{test,spec}.?(c|m)[jt]s?(x)'
+      run: npx vitest related {staged_files } --silent --run --typecheck
+pre-push:
+  parallel: true
+  commands:
+    biome:
+      run: npx @biomejs/biome check
+    vitest:
+      run: npx vitest --silent --run --typecheck
+check:
+  parallel: true
+  commands:
+    biome:
+      run: npx @biomejs/biome check
+    vitest:
+      run: npx vitest --silent --run --typecheck

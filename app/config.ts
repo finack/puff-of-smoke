@@ -6,6 +6,7 @@ dotenv.config();
 
 const config = cleanEnv(process.env, {
   DATABASE_URL: str(),
+  SESSION_SECRET: str(),
 });
 
 export default config;
