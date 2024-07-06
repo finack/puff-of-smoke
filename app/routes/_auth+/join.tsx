@@ -8,11 +8,11 @@ import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
 import { useEffect, useRef } from "react";
 
 import { createUser, getUserByEmail } from "~/models/user.server";
-import { createUserSession, getUserId } from "~/session.server";
+import { createUserSession, getUserIDFromCookie } from "~/session.server";
 import { safeRedirect, validateEmail } from "~/utils";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const userId = await getUserId(request);
+  const userId = await getUserIDFromCookie(request);
   if (userId) return redirect("/");
   return json({});
 };
@@ -57,11 +57,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     );
   }
 
-  const user = await createUser(email, password);
+  const [user] = await createUser(email, password);
 
   return createUserSession({
     redirectTo,
-    remember: false,
     request,
     userId: user.id,
   });

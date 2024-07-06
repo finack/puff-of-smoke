@@ -6,13 +6,20 @@ import {
   ScrollRestoration,
 } from "@remix-run/react";
 
-import type { LinksFunction } from "@remix-run/node";
+import type { LinksFunction, MetaFunction } from "@remix-run/node";
 import stylesheet from "~/tailwind.css?url";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
   { rel: "stylesheet", href: "https://rsms.me/inter/inter.css" }, // https://rsms.me/inter/#features
 ];
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: "Puff of Smoke" },
+    { name: "description", content: "Wire management for experimental planes" },
+  ];
+};
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (

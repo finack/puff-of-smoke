@@ -1,12 +1,17 @@
 import { createCookie, redirect } from "@remix-run/node";
 
+import {
+  type Project,
+  getDefaultOrLatestProject,
+  getProjectById,
+} from "~/models/project.server";
 import { createDataBaseSessionStorage } from "~/models/user-session.server";
-import type { User } from "~/models/user.server";
-import { getUserById } from "~/models/user.server";
+import { type User, getUserById } from "~/models/user.server";
 
 import config from "~/config";
 
 const USER_SESSION_KEY = "userId";
+const PROJECT_KEY = "projectId";
 
 const sessionCookie = createCookie("__session", {
   httpOnly: true,
@@ -19,7 +24,30 @@ const sessionCookie = createCookie("__session", {
 const { getSession, commitSession, destroySession } =
   createDataBaseSessionStorage(sessionCookie);
 
-export async function getUserId(
+export async function getProject(request: Request): Promise<Project> {
+  const projectId = await getProjectId(request);
+  const project = await getProjectById(projectId);
+  if (!project) throw new Error("getProject: Could not find project");
+  return project;
+}
+export async function getProjectId(request: Request): Promise<Project["id"]> {
+  const session = await getSession(request.headers.get("Cookie"));
+  const userId = session.get(USER_SESSION_KEY);
+  const projectId = session.get(PROJECT_KEY);
+
+  if (projectId) {
+    return projectId;
+  }
+
+  const project = await getDefaultOrLatestProject(userId);
+
+  if (!project) {
+    throw new Error("getProjectId: Could not find default project");
+  }
+  return project.id;
+}
+
+export async function getUserIdFromSession(
   request: Request,
 ): Promise<User["id"] | undefined> {
   const session = await getSession(request.headers.get("Cookie"));
@@ -28,7 +56,7 @@ export async function getUserId(
 }
 
 export async function getUser(request: Request) {
-  const userId = await getUserId(request);
+  const userId = await getUserIdFromSession(request);
 
   if (userId === undefined) return null;
 
@@ -38,13 +66,11 @@ export async function getUser(request: Request) {
   throw await logout(request);
 }
 
-export async function requireUserId(
+async function requireUserId(
   request: Request,
   redirectTo: string = new URL(request.url).pathname,
 ) {
-  console.log("requireUserId: Enter");
-  const userId = await getUserId(request);
-  console.log("requireUserId: userId:", userId);
+  const userId = await getUserIdFromSession(request);
   if (!userId) {
     const searchParams = new URLSearchParams([["redirectTo", redirectTo]]);
     throw redirect(`/login?${searchParams}`);
@@ -53,6 +79,8 @@ export async function requireUserId(
 }
 
 export async function requireUser(request: Request) {
+  console.log("requireUser:", request.url);
+
   const userId = await requireUserId(request);
 
   const user = await getUserById(userId);

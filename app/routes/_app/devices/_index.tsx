@@ -1,7 +1,9 @@
 import { json } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 
 import { EllipsisHorizontalIcon } from "@heroicons/react/16/solid";
+
 import {
   Dropdown,
   DropdownButton,
@@ -16,16 +18,17 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/table";
-import { getDevices } from "~/models/device.server";
 
-import { Link } from "~/components/link";
+import { getDevices } from "~/models/device.server";
+import { getProjectId, requireUser } from "~/session.server";
+
 import { Text } from "~/components/text";
 
-export const loader = async () => {
-  // const userId = "2258aded-43b7-474c-b1a4-93ca9a478bee"
-  const projectId = "69b1f8a1-8e0b-4900-99f3-50ac4321032a";
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  await requireUser(request);
+  const projectId: string = await getProjectId(request);
 
-  const devices = await getDevices({ projectId });
+  const devices = await getDevices(projectId);
   return json({ devices });
 };
 
@@ -36,7 +39,7 @@ export default function Devices() {
     <>
       <header className="flex items-center justify-between border-b border-white/5 px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
         <h1 className="mb-6 text-base font-semibold">Devices</h1>
-        <Text>Add Device</Text>
+        <Text>TODO Add Device</Text>T
       </header>
 
       <Table className="[--gutter:theme(spacing.6)] sm:[--gutter:theme(spacing.8)]">
@@ -49,7 +52,7 @@ export default function Devices() {
         </TableHead>
         <TableBody>
           {data.devices.map((device) => (
-            <TableRow key={device.id} href={`/device/${device.id}/wires`}>
+            <TableRow key={device.id} href={`/device/${device.id}`}>
               <TableCell className="text-right font-bold text-zinc-200">
                 {device.shortCode}
               </TableCell>

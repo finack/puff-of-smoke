@@ -1,3 +1,7 @@
+import { Form } from "@remix-run/react";
+
+import type { Project } from "~/models/project.server";
+
 import {
   ArrowRightStartOnRectangleIcon,
   ChevronDownIcon,
@@ -10,6 +14,7 @@ import {
 import {
   CheckCircleIcon,
   MagnifyingGlassIcon,
+  MoonIcon,
 } from "@heroicons/react/20/solid";
 import { Avatar } from "~/components/avatar";
 import {
@@ -30,12 +35,17 @@ import {
 } from "~/components/navbar";
 import { toggleTheme } from "~/utils/theme";
 
-export function NavBar() {
+export function NavBar(props: {
+  projects: Project[];
+  currentProject: Project;
+}) {
+  const { currentProject, projects } = props;
+
   return (
     <Navbar>
       <Dropdown>
         <DropdownButton as={NavbarItem}>
-          <NavbarLabel>Project Name</NavbarLabel>
+          <NavbarLabel>{currentProject.name}</NavbarLabel>
           <ChevronDownIcon />
         </DropdownButton>
         <DropdownMenu className="min-w-64" anchor="bottom start">
@@ -44,22 +54,19 @@ export function NavBar() {
             <DropdownLabel>Settings</DropdownLabel>
           </DropdownItem>
           <DropdownDivider />
-          <DropdownItem href="/teams/1">
-            <Avatar
-              slot="icon"
-              initials="WC"
-              className="bg-blue-500 text-white"
-            />
-            <DropdownLabel>Project 1</DropdownLabel>
-          </DropdownItem>
-          <DropdownItem href="/teams/2">
-            <Avatar
-              slot="icon"
-              initials="WC"
-              className="bg-purple-500 text-white"
-            />
-            <DropdownLabel>Project 2</DropdownLabel>
-          </DropdownItem>
+          {projects.map((project) => {
+            return (
+              <Form
+                key={project.id}
+                method="post"
+                action={`/project/switch/${project.id}`}
+              >
+                <DropdownItem>
+                  <DropdownLabel>{project.name}</DropdownLabel>
+                </DropdownItem>
+              </Form>
+            );
+          })}
           <DropdownDivider />
           <DropdownItem href="/project/create">
             <PlusIcon />
@@ -81,7 +88,7 @@ export function NavBar() {
           <CheckCircleIcon />
         </NavbarItem>
         <NavbarItem onClick={() => toggleTheme()} aria-label="Light mode">
-          <CheckCircleIcon />
+          <MoonIcon />
         </NavbarItem>
         <Dropdown>
           <DropdownButton as={NavbarItem}>
