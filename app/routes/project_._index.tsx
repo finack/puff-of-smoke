@@ -13,7 +13,6 @@ export const loader: LoaderFunction = async ({
   request,
 }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request);
-  // const userId = "2258aded-43b7-474c-b1a4-93ca9a478bee";
   const defaultProject = await getDefaultOrLatestProject({ ownerId: userId });
   if (!defaultProject) {
     // TODO - Create a new project

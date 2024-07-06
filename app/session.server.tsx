@@ -16,23 +16,14 @@ const sessionCookie = createCookie("__session", {
   secure: config.isProduction,
 });
 
-export const { getSession, commitSession, destroySession } =
+const { getSession, commitSession, destroySession } =
   createDataBaseSessionStorage(sessionCookie);
 
 export async function getUserId(
   request: Request,
 ): Promise<User["id"] | undefined> {
-  console.log("getUserId: Enter");
-  console.log("getUserId:", request.headers.get("Cookie"));
-
-  console.log(
-    "getUserId: cookie.parse:",
-    await sessionCookie.parse(request.headers.get("Cookie")),
-  );
   const session = await getSession(request.headers.get("Cookie"));
-  console.log("getUserId: getSession");
   const userId = session.get(USER_SESSION_KEY);
-  console.log("getUserId: userId:", userId);
   return userId;
 }
 

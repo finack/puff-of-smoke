@@ -28,6 +28,7 @@ import {
   NavbarSection,
   NavbarSpacer,
 } from "~/components/navbar";
+import { toggleTheme } from "~/utils/theme";
 
 export function NavBar() {
   return (
@@ -77,6 +78,9 @@ export function NavBar() {
           <MagnifyingGlassIcon />
         </NavbarItem>
         <NavbarItem href="/todo" aria-label="Todo">
+          <CheckCircleIcon />
+        </NavbarItem>
+        <NavbarItem onClick={() => toggleTheme()} aria-label="Light mode">
           <CheckCircleIcon />
         </NavbarItem>
         <Dropdown>
