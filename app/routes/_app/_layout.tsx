@@ -16,7 +16,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   return json({ projects, currentProject });
 };
 
-export default function ProjectIndex() {
+export default function AppLayout() {
   const { currentProject: jsonCurrentProject, projects: jsonProjects } =
     useLoaderData<typeof loader>();
 

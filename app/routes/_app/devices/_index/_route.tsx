@@ -2,6 +2,9 @@ import { json } from "@remix-run/node";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 
+import { getDevices } from "~/models/device.server";
+import { getProjectId, requireUser } from "~/session.server";
+
 import { EllipsisHorizontalIcon } from "@heroicons/react/16/solid";
 
 import {
@@ -18,9 +21,6 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/table";
-
-import { getDevices } from "~/models/device.server";
-import { getProjectId, requireUser } from "~/session.server";
 
 import { Text } from "~/components/text";
 
@@ -39,7 +39,7 @@ export default function Devices() {
     <>
       <header className="flex items-center justify-between border-b border-white/5 px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
         <h1 className="mb-6 text-base font-semibold">Devices</h1>
-        <Text>TODO Add Device</Text>T
+        <Text>TODO Add Device</Text>
       </header>
 
       <Table className="[--gutter:theme(spacing.6)] sm:[--gutter:theme(spacing.8)]">
@@ -52,7 +52,7 @@ export default function Devices() {
         </TableHead>
         <TableBody>
           {data.devices.map((device) => (
-            <TableRow key={device.id} href={`/device/${device.id}`}>
+            <TableRow key={device.id} href={`/devices/${device.id}`}>
               <TableCell className="text-right font-bold text-zinc-200">
                 {device.shortCode}
               </TableCell>
