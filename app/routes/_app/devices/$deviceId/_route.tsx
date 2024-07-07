@@ -2,6 +2,7 @@ import { type LoaderFunctionArgs, json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 
 import { getDeviceById } from "~/models/device.server";
+import { getPointsByDeviceId } from "~/models/point.server";
 import { requireUser } from "~/session.server";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
@@ -10,11 +11,11 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   await requireUser(request);
 
   const device = await getDeviceById(deviceId);
-  return json({ device });
+  const points = await getPointsByDeviceId(deviceId);
+  return json({ device, points });
 };
 
 export default function ShowDevice() {
-  console.log("ShowDevice");
   const { device } = useLoaderData<typeof loader>();
   return <div>{device?.id}</div>;
 }

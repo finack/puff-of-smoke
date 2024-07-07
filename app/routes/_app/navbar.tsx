@@ -74,8 +74,8 @@ export function NavBar(props: {
           </DropdownItem>
         </DropdownMenu>
       </Dropdown>
-      <NavbarDivider className="max-lg:hidden" />
-      <NavbarSection className="max-lg:hidden">
+      <NavbarDivider className="max-md:hidden" />
+      <NavbarSection className="max-md:hidden">
         <NavbarItem href="/devices">Devices</NavbarItem>
         <NavbarItem href="/wires">Wires</NavbarItem>
       </NavbarSection>

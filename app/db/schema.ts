@@ -64,7 +64,10 @@ export const pointsDataSchema = z.object({
 export const points = pgTable("points", {
   id: uuid("id").primaryKey().defaultRandom(),
   deviceId: uuid("device_id").references(() => devices.id, {
-    onDelete: "set null",
+    onDelete: "cascade",
+  }),
+  pointId: uuid("point_id").references(() => points.id, {
+    onDelete: "cascade",
   }),
   data: jsonb("data").$type<z.infer<typeof pointsDataSchema>>(),
 
@@ -153,7 +156,10 @@ export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 
 export const userSessions = pgTable("user_sessions", {
-  id: uuid("id").primaryKey().defaultRandom(),
+  id: uuid("id")
+    .primaryKey()
+    .defaultRandom()
+    .references(() => users.id, { onDelete: "cascade" }),
   data: jsonb("data"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
