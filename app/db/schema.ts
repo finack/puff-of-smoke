@@ -9,6 +9,7 @@ import {
   uniqueIndex,
   uuid,
   varchar,
+  foreignKey,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -24,6 +25,15 @@ export const devicesDataSchema = z.object({
     })
     .optional(),
   meta: z.any().optional(),
+});
+
+export const edge = pgTable("edge", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  fromNodeId: uuid("from_node_id"),
+  toNodeId: uuid("to_node_id"),
+  type: varchar("type", { length: 255 }), // wire type, data type, etc.
+  fromNodeType: varchar("from_node_type", { length: 255 }),
+  toNodeType: varchar("to_node_type", { length: 255 }),
 });
 
 export const devices = pgTable("devices", {

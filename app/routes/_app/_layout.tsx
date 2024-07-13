@@ -37,7 +37,7 @@ export default function AppLayout() {
       : null,
   };
   return (
-    <div className="w-screen">
+    <div>
       <StackedLayout
         navbar={<NavBar projects={projects} currentProject={currentProject} />}
         sidebar={<SideBar />}

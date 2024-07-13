@@ -45,7 +45,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           }}
         />
       </head>
-      <body className="h-full">
+      <body className="h-full w-full">
         {children}
         <ScrollRestoration />
         <Scripts />
