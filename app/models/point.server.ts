@@ -1,7 +1,7 @@
-import { or, eq, sql } from "drizzle-orm";
+import { eq, or, sql } from "drizzle-orm";
 
 import db from "~/db/db.server";
-import { points, type Point, segments, type Segment } from "~/db/schema";
+import { type Point, type Segment, points, segments } from "~/db/schema";
 export type { Point, NewPoint } from "~/db/schema";
 
 export async function getPointsForDeviceId(deviceId: string) {

@@ -12,8 +12,8 @@ import ReactFlow, {
 import "reactflow/dist/style.css";
 
 import { getDeviceById } from "~/models/device.server";
-import { requireUser } from "~/session.server";
 import { deviceNodes } from "~/models/flow.server";
+import { requireUser } from "~/session.server";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const deviceId = params.deviceId;

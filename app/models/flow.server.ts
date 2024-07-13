@@ -1,9 +1,9 @@
 import type { Edge, Node } from "reactflow";
 
 import {
-  getPointsForDeviceId,
-  getAllPointsForDeviceId,
   type Point,
+  getAllPointsForDeviceId,
+  getPointsForDeviceId,
 } from "~/models/point.server";
 
 import type { Device } from "~/models/device.server";

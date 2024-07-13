@@ -1,6 +1,7 @@
 import { relations, sql } from "drizzle-orm";
 import {
   boolean,
+  foreignKey,
   jsonb,
   pgEnum,
   pgTable,
@@ -9,7 +10,6 @@ import {
   uniqueIndex,
   uuid,
   varchar,
-  foreignKey,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
