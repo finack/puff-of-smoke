@@ -1,9 +1,9 @@
 import fs from "node:fs";
 import { parse } from "csv-parse";
-import { eq } from "drizzle-orm";
+import { and, eq, or, sql } from "drizzle-orm";
 
 import db, { pool } from "~/db/db.server";
-import { devices, points, projects, segments, users } from "~/db/schema";
+import { type Node, edges, nodes, projects, users } from "~/db/schema";
 
 import { createUser, deleteUserByEmail } from "~/models/user.server";
 
@@ -12,151 +12,165 @@ async function devicesFromCsv(projectId: string) {
     .createReadStream("devices.csv")
     .pipe(parse({ columns: true }));
 
-  for await (const record of parser) {
-    if (record.type !== "Device") {
+  const shortNameToId: { [key: string]: string } = {};
+
+  for await (const row of parser) {
+    if (row.type !== "Device") {
       continue;
     }
 
-    const {
-      id,
-      shortCode,
-      description,
-      vendor,
-      model,
-      url,
-      partNumber,
-      cost,
-      ...meta
-    } = record;
+    const { shortName, description, vendor, model, url, partNumber, cost } =
+      row;
 
-    const updatedRecord = {
-      shortCode,
-      description,
-      data: {
-        vendor: {
-          name: vendor,
-          model,
-          url,
-          partNumber,
-          price: cost,
-        },
-        meta,
+    const deviceKindData = {
+      kind: "device" as const,
+      vendor: {
+        name: vendor,
+        model,
+        url,
+        partNumber,
+        price: cost,
       },
     };
 
-    await db
-      .insert(devices)
-      .values({ ...updatedRecord, projectId })
+    const [results] = await db
+      .insert(nodes)
+      .values({
+        name: shortName,
+        description,
+        kind: "device",
+        projectId,
+        kindData: deviceKindData,
+      })
       .returning();
+
+    shortNameToId[shortName.toLowerCase()] = results.id;
   }
+  return shortNameToId;
 }
 
-async function getDeviceId(
-  shortName: string,
-): Promise<{ shortName: string; id: string }> {
-  const results = await db.query.devices.findFirst({
-    columns: { id: true },
-    where: eq(devices.shortCode, shortName),
+async function getComponentId(deviceId: string, connectorName: string) {
+  const [results] = await db
+    .select()
+    .from(edges)
+    .innerJoin(nodes, or(eq(nodes.id, edges.nodeA), eq(nodes.id, edges.nodeB)))
+    .where(
+      and(
+        or(eq(edges.nodeA, deviceId), eq(edges.nodeB, deviceId)),
+        eq(nodes.kind, "connector"),
+        eq(nodes.name, connectorName),
+      ),
+    )
+    .limit(1);
+
+  return results?.nodes?.id ?? null;
+}
+
+async function createComponent(
+  projectId: string,
+  deviceId: string,
+  name: string,
+) {
+  const kind = "connector" as const;
+
+  const connectorId = await db.transaction(async (tx) => {
+    const [connector] = await tx
+      .insert(nodes)
+      .values({ projectId, kind, name, kindData: { kind } })
+      .returning();
+    await tx.insert(edges).values({ nodeA: deviceId, nodeB: connector.id });
+    return connector.id;
   });
 
-  if (!results) {
-    throw new Error(`Device not found: ${shortName}`);
-  }
-
-  return { shortName: shortName.toLowerCase(), id: results.id };
+  return connectorId;
 }
 
-async function getDeviceIds(
-  shortNames: string[],
-): Promise<{ [key: string]: string }> {
-  const devsArray = await Promise.all(shortNames.map(getDeviceId));
-
-  return devsArray.reduce((acc: { [key: string]: string }, dev) => {
-    acc[dev.shortName] = dev.id;
-    return acc;
-  }, {});
+async function getOrCreateComponentId(
+  projectId: string,
+  deviceId: string,
+  componentName: string,
+) {
+  const componentId = await getComponentId(deviceId, componentName);
+  if (componentId) return componentId;
+  return await createComponent(projectId, deviceId, componentName);
 }
 
 async function createPoint(
-  id: string,
-  name: string,
+  projectId: string,
+  pointName: string,
+  pointDescription: string,
   componentId: string,
-  label: string,
-  componentName: string,
-  // biome-ignore lint/style/noInferrableTypes:
-  usePointId: boolean = false,
-): Promise<{ [key: string]: string }> {
-  const [results] = await db
-    .insert(points)
-    .values({
-      ...(usePointId ? { pointId: id } : { deviceId: id }),
-      data: {
-        component: { id: componentId, label, name: componentName },
-      },
-    })
-    .returning();
-  return { [name]: results.id };
-}
-
-async function createPoints(
-  pointsToBeCreated: (string | number | boolean)[][],
-): Promise<{ [key: string]: string }> {
-  const pointsPromises = pointsToBeCreated.map(
-    ([id, name, componentId, label, componentName, usePointId]) =>
-      createPoint(
-        id as string,
-        name as string,
-        componentId as string,
-        label as string,
-        componentName as string,
-        usePointId as boolean,
-      ),
-  );
-  const pointsArray = await Promise.all(pointsPromises);
-
-  return pointsArray.reduce((acc: { [key: string]: string }, point) => {
-    // biome-ignore lint/performance/noAccumulatingSpread:
-    return { ...acc, ...point };
-  }, {});
-}
-
-async function createSegment(
-  name: string,
-  startPointId: string,
-  endPointId: string,
-): Promise<{ [key: string]: string }> {
-  if (!startPointId || !endPointId) {
-    console.log("createSegement:", name, startPointId, endPointId);
-    return { [name]: "Invalid start or end point ID" };
-  }
-
-  try {
-    const [results] = await db
-      .insert(segments)
+) {
+  const pointId = await db.transaction(async (tx) => {
+    const [point] = await tx
+      .insert(nodes)
       .values({
-        startPointId,
-        endPointId,
+        projectId,
+        kind: "point",
+        name: pointName,
+        description: pointDescription,
+        kindData: { kind: "point" },
       })
       .returning();
-    return { [`${startPointId}-${endPointId}`]: results.id };
-  } catch (error) {
-    return { [name]: String(error) };
-  }
+    await tx.insert(edges).values({ nodeA: componentId, nodeB: point.id });
+    return point.id;
+  });
+  return pointId;
 }
 
-async function createSegments(
-  segmentsToBeCreated: string[][],
-): Promise<{ [key: string]: string }> {
-  const segmentsPromises = segmentsToBeCreated.map(
-    ([name, startPointId, endPointId]) =>
-      createSegment(name, startPointId, endPointId),
-  );
-  const segmentsArray = await Promise.all(segmentsPromises);
+async function createPoints(projectId: string, pointsToBeCreated: string[][]) {
+  const result = {};
+  for (const [
+    deviceId,
+    pointName,
+    pointId,
+    label,
+    componentName,
+  ] of pointsToBeCreated) {
+    const componentId = await getOrCreateComponentId(
+      projectId,
+      deviceId,
+      componentName,
+    );
+    const newPointId = await createPoint(
+      projectId,
+      pointId,
+      label,
+      componentId,
+    );
+    result[pointName] = newPointId;
+  }
+  return result;
+}
 
-  return segmentsArray.reduce((acc: { [key: string]: string }, segment) => {
-    // biome-ignore lint/performance/noAccumulatingSpread:
-    return { ...acc, ...segment };
-  }, {});
+//     [pts.gtn19, "gtn_j_19", "", "Join GTN P1001 19 & 20"],
+async function createJoinPoints(
+  projectId: string,
+  pointsToBeCreated: string[][],
+) {
+  const result = {};
+  for (const [pointId, pointName, _, label] of pointsToBeCreated) {
+    const newPointId = await createPoint(projectId, pointName, label, pointId);
+    result[pointName] = newPointId;
+  }
+  return result;
+}
+
+// ["pts.ibbs12-pts.gtn30", pts.ibbs12, pts.gtn30],
+async function createEdges(projectId: string, edgesToBeCreated: string[][]) {
+  const result = {};
+  for (const [edgeName, nodeA, nodeB] of edgesToBeCreated) {
+    if (!nodeA || !nodeB) {
+      console.log("createEdges: Invalid nodeA or nodeB:", nodeA, nodeB);
+      continue;
+    }
+    const [newEdge] = await db
+      .insert(edges)
+      .values({ nodeA, nodeB })
+      .returning();
+    result[edgeName] = newEdge.id;
+  }
+  return result;
 }
 
 async function seeds() {
@@ -176,20 +190,7 @@ async function seeds() {
     isDefault: true,
   });
 
-  await devicesFromCsv(projectId);
-
-  const devs = await getDeviceIds([
-    "ADAHR",
-    "BRK",
-    "EIS",
-    "FUSE",
-    "GTN",
-    "GND",
-    "IBBS",
-    "NDIA",
-    "PFD",
-    "MAGNT",
-  ]);
+  const devs = await devicesFromCsv(projectId);
   console.log("devs:", devs);
 
   const pointsToBeCreated = [
@@ -246,25 +247,20 @@ async function seeds() {
     [devs.fuse, "fuse1_3", "3", "PFD Power 2", "1"],
     [devs.fuse, "fuse1_4", "4", "ADAHR NDIA MAGNT EIS Power 2", "1"],
   ];
-  let pts = await createPoints(pointsToBeCreated);
+
+  let pts = await createPoints(projectId, pointsToBeCreated);
+
   const joinPtsToBeCreated = [
-    [pts.fuse0_1, "fuse_j_1", "", "Join Fuse 0: 1 & 4", "", true],
-    [pts.fuse0_2, "fuse_j_2", "", "Join Fuse 0: 1 & 4", "", true],
-    [pts.ibbs6, "ibbs_j_6", "", "Join IBBS 6, 7, 8", "", true],
-    [pts.ibbs10, "ibbs_j_10", "", "Join IBBS 10 & 11", "", true],
-    [pts.gtn43, "gtn_j_43", "", "Join GTN P1003 43 & 44", "", true],
-    [pts.gtn51, "gtn_j_51", "", "Join GTN P1004 51 & 52", "", true],
-    [pts.gtn19, "gtn_j_19", "", "Join GTN P1001 19 & 20", "", true],
-    [
-      pts.adahr22,
-      "adahr_j_22",
-      "",
-      "Joint ADAHR 22, NDIA 8, MAGNT 8, EIS 2",
-      "",
-      true,
-    ],
+    [pts.fuse0_1, "fuse_j_1", "", "Join Fuse 0: 1 & 4"],
+    [pts.fuse0_2, "fuse_j_2", "", "Join Fuse 0: 1 & 4"],
+    [pts.ibbs6, "ibbs_j_6", "", "Join IBBS 6, 7, 8"],
+    [pts.ibbs10, "ibbs_j_10", "", "Join IBBS 10 & 11"],
+    [pts.gtn43, "gtn_j_43", "", "Join GTN P1003 43 & 44"],
+    [pts.gtn51, "gtn_j_51", "", "Join GTN P1004 51 & 52"],
+    [pts.gtn19, "gtn_j_19", "", "Join GTN P1001 19 & 20"],
+    [pts.adahr22, "adahr_j_22", "", "Joint ADAHR 22, NDIA 8, MAGNT 8, EIS 2"],
   ];
-  const joinPts = await createPoints(joinPtsToBeCreated);
+  const joinPts = await createJoinPoints(projectId, joinPtsToBeCreated);
   pts = { ...pts, ...joinPts };
   console.log("pts:", pts);
 
@@ -314,7 +310,8 @@ async function seeds() {
     ["pts.ibbs_11-pts.ibbs_j_10", pts.ibbs11, pts.ibbs_j_10],
     ["pts.ibbs_j_10-pts.gnd_3", pts.ibbs_j_10, pts.gnd3],
   ];
-  const segs = await createSegments(segmentsToBeCreated);
+  const edgs = await createEdges(projectId, segmentsToBeCreated);
+  console.log("edgs:", edgs);
 }
 async function runSeed() {
   try {
