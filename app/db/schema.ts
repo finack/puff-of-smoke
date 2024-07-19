@@ -58,14 +58,19 @@ const deviceNodeKindSchema = z.object({
     price: z.number().optional(),
   }),
 });
+export type DeviceNodeKind = z.infer<typeof deviceNodeKindSchema>;
 
-export const connectorNodeKindSchema = z.object({
+const connectorNodeKindSchema = z.object({
   kind: z.literal("connector"),
 });
+export type ConnectorNodeKind = z.infer<typeof connectorNodeKindSchema>;
 
-export const pointNodeKindSchema = z.object({
+const pointNodeKindSchema = z.object({
   kind: z.literal("point"),
 });
+export type PointNodeKind = z.infer<typeof pointNodeKindSchema>;
+
+export type NodeKindData = DeviceNodeKind | ConnectorNodeKind | PointNodeKind;
 
 export const nodeKindDataSchema = z.discriminatedUnion("kind", [
   deviceNodeKindSchema,
@@ -73,7 +78,8 @@ export const nodeKindDataSchema = z.discriminatedUnion("kind", [
   pointNodeKindSchema,
 ]);
 
-export const nodeKinds = z.enum(["device", "connector", "point"]);
+const nodeKinds = z.enum(["device", "connector", "point"]);
+export type NodeKinds = z.infer<typeof nodeKinds>;
 
 export const nodes = pgTable("nodes", {
   id: uuid("id").primaryKey().defaultRandom(),

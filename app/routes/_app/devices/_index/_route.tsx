@@ -2,6 +2,7 @@ import { json } from "@remix-run/node";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 
+import type { DeviceNodeKind, Node } from "~/db/schema";
 import { getDevices } from "~/models/device.server";
 import { getProjectId, requireUser } from "~/session.server";
 
@@ -21,7 +22,6 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/table";
-
 import { Text } from "~/components/text";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -31,6 +31,15 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const devices = await getDevices(projectId);
   return json({ devices });
 };
+
+function getKindData(node: Pick<Node, "kind" | "kindData">): DeviceNodeKind {
+  if (!node) throw new Error("Node is null");
+
+  if (node.kindData?.kind !== "device")
+    throw new Error("Node kind is not device");
+
+  return node.kindData;
+}
 
 export default function Devices() {
   const data = useLoaderData<typeof loader>();
@@ -51,36 +60,39 @@ export default function Devices() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {data.devices.map((device) => (
-            <TableRow key={device.id} href={`/devices/${device.id}`}>
-              <TableCell className="text-right font-bold text-zinc-200">
-                {device.shortCode}
-              </TableCell>
-              <TableCell>
-                <div className="flex items-center gap-4">
-                  <div>
-                    <div className="font-medium">
-                      {device.data?.vendor?.name} {device.data?.vendor?.model}
+          {data.devices.map((device) => {
+            const data = getKindData(device);
+            return (
+              <TableRow key={device.id} href={`/devices/${device.id}`}>
+                <TableCell className="text-right font-bold text-zinc-200">
+                  {device.name}
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-4">
+                    <div>
+                      <div className="font-medium">
+                        {data?.vendor?.name} {data?.vendor?.model}
+                      </div>
+                      <div className="text-zinc-500">{device.description}</div>
                     </div>
-                    <div className="text-zinc-500">{device.description}</div>
                   </div>
-                </div>
-              </TableCell>
-              <TableCell>
-                <div className="-mx-3 -my-1.5 sm:-mx-2.5">
-                  <Dropdown>
-                    <DropdownButton plain aria-label="More options">
-                      <EllipsisHorizontalIcon />
-                    </DropdownButton>
-                    <DropdownMenu anchor="bottom end">
-                      <DropdownItem>Edit</DropdownItem>
-                      <DropdownItem>Delete</DropdownItem>
-                    </DropdownMenu>
-                  </Dropdown>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
+                </TableCell>
+                <TableCell>
+                  <div className="-mx-3 -my-1.5 sm:-mx-2.5">
+                    <Dropdown>
+                      <DropdownButton plain aria-label="More options">
+                        <EllipsisHorizontalIcon />
+                      </DropdownButton>
+                      <DropdownMenu anchor="bottom end">
+                        <DropdownItem>Edit</DropdownItem>
+                        <DropdownItem>Delete</DropdownItem>
+                      </DropdownMenu>
+                    </Dropdown>
+                  </div>
+                </TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </>

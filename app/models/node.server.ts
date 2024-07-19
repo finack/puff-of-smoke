@@ -1,5 +1,13 @@
-import { v4 as uuidv4 } from "uuid";
-import { z } from "zod";
-
+import type {
+  ConnectorNodeKind,
+  DeviceNodeKind,
+  NewNode,
+  Node,
+  NodeKindData,
+  NodeKinds,
+  PointNodeKind,
+} from "~/db/schema";
 import { nodes } from "~/db/schema";
-import type { DeviceNodeType, NewNode, Node } from "~/db/schema";
+
+export type { Node, NewNode };
+export { nodes };
